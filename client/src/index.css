@@ -1,0 +1,56 @@
+@import "tailwindcss";
+
+::-webkit-progress-bar {
+  @apply bg-[#81BCFF] rounded-full;
+}
+::-webkit-progress-value {
+  @apply bg-[#0178ff] rounded-r-full;
+}
+
+html {
+  font-family: "Segoe UI", ui-sans-serif, system-ui, -apple-system,
+    BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell,
+    "Open Sans", "Helvetica Neue", sans-serif;
+}
+body {
+  @apply bg-[#F5FAFF];
+}
+
+aside ul li {
+  .sub a::before {
+    content: "";
+    position: absolute;
+    width: 10px;
+    height: 1px;
+    background: #0178ff;
+    left: -1rem;
+    top: 50%;
+    translate: -50%;
+  }
+  a {
+    @apply flex gap-2 py-2 relative;
+  }
+}
+
+form {
+  label {
+    @apply block;
+  }
+  input {
+    @apply px-2 py-1 w-full border-2 border-[#ddd] outline-[#81BCFF] focus-within:outline-2 focus-within:border-[#0178ff] rounded-md;
+  }
+}
+
+.btn {
+  @apply px-4 py-2 rounded-md transition bg-[#0178ff] text-white cursor-pointer hover:bg-white hover:text-[#0178ff] hover:outline-2 outline-[#81BCFF];
+}
+td,
+th {
+  @apply border-[#81BCFF] text-left p-4;
+}
+th {
+  @apply border-b border-[#0178ff]/10;
+}
+tr:nth-child(even) {
+  @apply bg-[#F5FAFF];
+}
