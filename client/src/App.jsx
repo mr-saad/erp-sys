@@ -1,5 +1,6 @@
 import { Routes, Route } from "react-router"
 import Sidebar from "./components/Sidebar"
+import Footer from "./components/Footer"
 import Dashboard from "./routes/Dashboard"
 import Analytics from "./routes/Analytics"
 import Leads from "./routes/Leads"
@@ -51,6 +52,7 @@ function App() {
           />
         </Routes>
       </div>
+      <Footer />
     </>
   )
 }
