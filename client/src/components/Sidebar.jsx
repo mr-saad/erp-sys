@@ -1,4 +1,5 @@
 import {
+  Grid2X2,
   LayoutDashboard,
   LayoutList,
   LogIn,
@@ -6,20 +7,23 @@ import {
   PieChart,
   Settings,
   User,
+  Users,
 } from "lucide-react"
 import { Link, useLocation } from "react-router"
 
-export default function Sidebar({ loggedIn, setLoggedIn }) {
+export default function Sidebar({ loggedIn }) {
   const { pathname } = useLocation()
 
   return (
-    <aside className="p-8 bg-white md:min-h-screen">
-      <h1 className="text-3xl font-bold mb-5">Revatix</h1>
+    <aside className="px-8 py-5 bg-white md:min-h-screen">
+      <Link to={"/dashboard"}>
+        <h1 className="text-3xl font-bold mb-5 text-[#0178ff]">Revatix</h1>
+      </Link>
       <ul>
         <li>
           <Link
-            className={`${pathname === "/" ? "text-[#0178ff]" : ""}`}
-            to="/"
+            className={`${pathname === "/dashboard" ? "text-[#0178ff]" : ""}`}
+            to="/dashboard"
           >
             <LayoutDashboard /> Dashboard
           </Link>
@@ -27,17 +31,19 @@ export default function Sidebar({ loggedIn, setLoggedIn }) {
             <li>
               <Link
                 className={`${
-                  pathname === "/analytics" ? "text-[#0178ff]" : ""
+                  pathname === "/dashboard/analytics" ? "text-[#0178ff]" : ""
                 }`}
-                to="/analytics"
+                to="/dashboard/analytics"
               >
                 <PieChart /> Analytics
               </Link>
             </li>
             <li>
               <Link
-                className={`${pathname === "/leads" ? "text-[#0178ff]" : ""}`}
-                to="/leads"
+                className={`${
+                  pathname === "/dashboard/leads" ? "text-[#0178ff]" : ""
+                }`}
+                to="/dashboard/leads"
               >
                 <User /> Leads
               </Link>
@@ -45,9 +51,29 @@ export default function Sidebar({ loggedIn, setLoggedIn }) {
             <li>
               <Link
                 className={`${
-                  pathname === "/list-view" ? "text-[#0178ff]" : ""
+                  pathname === "/dashboard/customers" ? "text-[#0178ff]" : ""
                 }`}
-                to="/list-view"
+                to="/dashboard/customers"
+              >
+                <Users /> Customers
+              </Link>
+            </li>
+            <li>
+              <Link
+                className={`${
+                  pathname === "/dashboard/products" ? "text-[#0178ff]" : ""
+                }`}
+                to="/dashboard/products"
+              >
+                <Grid2X2 /> Products
+              </Link>
+            </li>
+            <li>
+              <Link
+                className={`${
+                  pathname === "/dashboard/list-view" ? "text-[#0178ff]" : ""
+                }`}
+                to="/dashboard/list-view"
               >
                 <LayoutList /> List View
               </Link>
@@ -56,20 +82,15 @@ export default function Sidebar({ loggedIn, setLoggedIn }) {
         </li>
         <li>
           <Link
-            className={`${pathname === "/settings" ? "text-[#0178ff]" : ""}`}
-            to="/settings"
+            className={`${
+              pathname === "/dashboard/settings" ? "text-[#0178ff]" : ""
+            }`}
+            to="/dashboard/settings"
           >
             <Settings /> Settings
           </Link>
         </li>
-        {loggedIn ? (
-          <li>
-            <Link onClick={() => setLoggedIn(false)} to="#">
-              <LogOut />
-              Logout
-            </Link>
-          </li>
-        ) : (
+        {/* {!loggedIn && (
           <li>
             <Link
               className={`${pathname === "/login" ? "text-[#0178ff]" : ""}`}
@@ -79,7 +100,7 @@ export default function Sidebar({ loggedIn, setLoggedIn }) {
               Login
             </Link>
           </li>
-        )}
+        )} */}
       </ul>
     </aside>
   )

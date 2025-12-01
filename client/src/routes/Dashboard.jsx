@@ -1,105 +1,133 @@
 import Navbar from "../components/Navbar"
-import { baseUrl } from "../App"
 import { Navigate } from "react-router"
+import {
+  BadgeIndianRupee,
+  EllipsisVertical,
+  LineChart,
+  TrendingUp,
+  User,
+} from "lucide-react"
+import IndexLineChart from "../components/LineChart"
 
-export default function Dashboard({ loggedIn, username }) {
-  console.log(loggedIn)
+export default function Dashboard({ loggedIn, username, setLoggedIn }) {
   if (!loggedIn) {
-    return <Navigate to={"/login"} />
+    return <Navigate to={"/"} />
   }
-  const onSubmit = async (e) => {
-    e.preventDefault()
-    const formData = new FormData(e.target)
-    const res = await fetch(baseUrl + "/create-lead", {
-      method: "POST",
-      body: JSON.stringify(Object.fromEntries(formData)),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    })
-    if (res.status === 200) {
-      alert("Lead Created")
-      e.target.reset()
-    }
-  }
+
   return (
     <div>
-      <Navbar username={username} />
+      <Navbar username={username} setLoggedIn={setLoggedIn} />
       <main className="p-8">
-        <section className="shadow-md shadow-black/5 bg-white rounded-xl p-8">
-          <h2 className="mb-5 text-xl font-bold">Create Lead</h2>
-          <form onSubmit={onSubmit}>
-            <div className="grid gap-5 md:grid-cols-3 mb-5">
+        <div className="grid gap-8 md:grid-cols-3">
+          <div className="rounded-xl bg-white shadow-md shadow-black/5">
+            <div className="flex gap-2 p-6">
+              <span className="p-3 rounded-xl border border-[#81BCFF]">
+                <TrendingUp color="#81BCFF" />
+              </span>
               <div>
-                <label htmlFor="name">Name</label>
-                <input
-                  id="name"
-                  name="name"
-                  type="text"
-                  placeholder="John"
-                  required
-                  minLength={4}
-                  maxLength={20}
-                />
+                <h2 className="text-xl font-bold">Total Sales</h2>
+                <p className="text-[#707070]">1.65 &gt; 2.68</p>
+              </div>
+              <EllipsisVertical
+                className="ml-auto cursor-pointer"
+                color="#707070"
+              />
+            </div>
+            <hr className="border-[#eee]" />
+            <div className="flex justify-between items-center p-6">
+              <span className="text-xl font-bold">46.2%</span>
+              <LineChart className="cursor-pointer" />
+            </div>
+          </div>
+          <div className="rounded-xl bg-white shadow-md shadow-black/5">
+            <div className="flex gap-2 p-6">
+              <span className="p-3 rounded-xl border border-[#81BCFF]">
+                <BadgeIndianRupee color="#81BCFF" />
+              </span>
+              <div>
+                <h2 className="text-xl font-bold">Total Expenses</h2>
+                <p className="text-[#707070]">₹20,000 &lt; ₹9,000</p>
+              </div>
+              <EllipsisVertical
+                className="ml-auto cursor-pointer"
+                color="#707070"
+              />
+            </div>
+            <hr className="border-[#eee]" />
+            <div className="flex justify-between items-center p-6">
+              <span className="text-xl font-bold">66.2%</span>
+              <LineChart className="cursor-pointer" />
+            </div>
+          </div>
+          <div className="rounded-xl bg-white shadow-md shadow-black/5 md:row-span-2">
+            <div className="flex gap-2 p-6">
+              <div>
+                <h2 className="text-xl font-bold">Lead Status By Owner</h2>
+                <p className="text-[#707070]">Saad Khatri</p>
+              </div>
+              <EllipsisVertical
+                className="ml-auto cursor-pointer"
+                color="#707070"
+              />
+            </div>
+            <hr className="border-[#eee]" />
+            <div className="p-6">
+              <div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="inline-block p-3 rounded-full border border-[#81BCFF]">
+                      <User color="#81BCFF" />
+                    </span>
+                    <span>John Doe</span>
+                  </div>
+                  <span className="px-4 py-1 rounded-xl text-white bg-[#0178ff]">
+                    36
+                  </span>
+                </div>
+                <progress max={100} value={36} className="w-full h-1">
+                  36
+                </progress>
+                <hr className="border-[#eee] my-2" />
               </div>
               <div>
-                <label htmlFor="email">E-Mail</label>
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  placeholder="john@gmail.com"
-                  required
-                />
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="inline-block p-3 rounded-full border border-[#81BCFF]">
+                      <User color="#81BCFF" />
+                    </span>
+                    <span>Ezio Auditore</span>
+                  </div>
+                  <span className="px-4 py-1 rounded-xl text-white bg-[#0178ff]">
+                    64
+                  </span>
+                </div>
+                <progress max={100} value={64} className="w-full h-1">
+                  64
+                </progress>
+                <hr className="border-[#eee] my-2" />
               </div>
               <div>
-                <label htmlFor="phone">Phone</label>
-                <input
-                  id="phone"
-                  name="phone"
-                  type="tel"
-                  placeholder=""
-                  required
-                  minLength={10}
-                  maxLength={10}
-                />
-              </div>
-              <div>
-                <label htmlFor="leadSource">Lead Source</label>
-                <input
-                  id="leadSource"
-                  name="leadSource"
-                  type="text"
-                  placeholder=""
-                  required
-                />
-              </div>
-              <div>
-                <label htmlFor="leadStatus">Lead Status</label>
-                <input
-                  id="leadStatus"
-                  name="leadStatus"
-                  type="text"
-                  placeholder=""
-                  required
-                />
-              </div>
-              <div>
-                <label htmlFor="assigned">Assgined to</label>
-                <input
-                  id="assigned"
-                  name="assignedTo"
-                  type="text"
-                  placeholder="Doe"
-                  required
-                  minLength={4}
-                  maxLength={20}
-                />
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="inline-block p-3 rounded-full border border-[#81BCFF]">
+                      <User color="#81BCFF" />
+                    </span>
+                    <span>Federico Auditore</span>
+                  </div>
+                  <span className="px-4 py-1 rounded-xl text-white bg-[#0178ff]">
+                    24
+                  </span>
+                </div>
+                <progress max={100} value={24} className="w-full h-1">
+                  24
+                </progress>
               </div>
             </div>
-            <button className="btn">Create</button>
-          </form>
-        </section>
+          </div>
+          <div className="rounded-xl p-6 bg-white shadow-md shadow-black/5 md:row-start-2 md:col-span-2">
+            <IndexLineChart />
+          </div>
+        </div>
       </main>
     </div>
   )

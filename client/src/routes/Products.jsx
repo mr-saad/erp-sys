@@ -6,11 +6,11 @@ import { useState } from "react"
 import queryClient from "../utils/queryClient"
 import { Navigate } from "react-router"
 
-export default function Leads({ username, loggedIn, setLoggedIn }) {
+export default function Products({ username, loggedIn, setLoggedIn }) {
   const { data, isPending, error, isError } = useQuery({
-    queryKey: ["leads"],
+    queryKey: ["products"],
     queryFn: async () => {
-      const res = await fetch(baseUrl + "/leads", {
+      const res = await fetch(baseUrl + "/products", {
         method: "GET",
         headers: { "Content-Type": "application/json" },
       })
@@ -21,11 +21,11 @@ export default function Leads({ username, loggedIn, setLoggedIn }) {
     },
   })
   const mutation = useMutation({
-    mutationFn: async (selectedLeads) => {
-      const res = await fetch(baseUrl + "/delete-leads", {
+    mutationFn: async (selectedProducts) => {
+      const res = await fetch(baseUrl + "/delete-products", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ selectedLeads }),
+        body: JSON.stringify({ selectedProducts }),
       })
       if (!res.ok) {
         throw new Error(await res.text())
@@ -33,27 +33,26 @@ export default function Leads({ username, loggedIn, setLoggedIn }) {
       return res.json()
     },
     onSuccess: (data) => {
-      queryClient.setQueryData(["leads"], data)
-      setSelectedLeads([])
+      queryClient.setQueryData(["products"], data)
+      setSelectedProducts([])
     },
   })
 
-  const [showLeadModal, setShowLeadModal] = useState(false)
-  const [selectedLeads, setSelectedLeads] = useState([])
+  const [showProductModal, setShowProductModal] = useState(false)
+  const [selectedProducts, setSelectedProducts] = useState([])
 
   const handleSelect = (e) => {
     if (e.target.checked)
-      setSelectedLeads((prev) => [...prev, e.target.getAttribute("dataid")])
+      setSelectedProducts((prev) => [...prev, e.target.getAttribute("dataid")])
     else
-      setSelectedLeads((prev) =>
+      setSelectedProducts((prev) =>
         prev.filter((id) => id !== e.target.getAttribute("dataid")),
       )
   }
 
-  const leadOps = () => {
-    if (selectedLeads.length > 0) mutation.mutate(selectedLeads)
+  const ProductOps = () => {
+    if (selectedProducts.length > 0) mutation.mutate(selectedProducts)
   }
-
   if (!loggedIn) {
     return <Navigate to={"/"} />
   }
@@ -63,9 +62,9 @@ export default function Leads({ username, loggedIn, setLoggedIn }) {
       <main className="p-8">
         <section>
           <div className="flex justify-between items-center">
-            <h1 className="text-2xl font-bold">Leads</h1>
+            <h1 className="text-2xl font-bold">Products</h1>
             <button
-              onClick={() => setShowLeadModal(true)}
+              onClick={() => setShowProductModal(true)}
               className="btn flex gap-1"
             >
               <Plus />
@@ -85,15 +84,17 @@ export default function Leads({ username, loggedIn, setLoggedIn }) {
                     <th>
                       <input
                         onChange={(e) => {
-                          const leads = document.querySelectorAll("[dataid]")
+                          const products = document.querySelectorAll("[dataid]")
                           if (e.target.checked) {
-                            ;[...leads].forEach((ld) => (ld.checked = true))
-                            setSelectedLeads(
-                              [...leads].map((ld) => ld.getAttribute("dataid")),
+                            ;[...products].forEach((ld) => (ld.checked = true))
+                            setSelectedProducts(
+                              [...products].map((ld) =>
+                                ld.getAttribute("dataid"),
+                              ),
                             )
                           } else {
-                            ;[...leads].forEach((ld) => (ld.checked = false))
-                            setSelectedLeads([])
+                            ;[...products].forEach((ld) => (ld.checked = false))
+                            setSelectedProducts([])
                           }
                         }}
                         type="checkbox"
@@ -101,11 +102,12 @@ export default function Leads({ username, loggedIn, setLoggedIn }) {
                       />
                     </th>
                     <th>Name</th>
-                    <th>E-Mail</th>
-                    <th>Phone</th>
-                    <th>Lead Source</th>
-                    <th>Lead Status</th>
-                    <th>Assigned to</th>
+                    <th>Category</th>
+                    <th>Price</th>
+                    <th>SKU</th>
+                    <th>Brand</th>
+                    <th>Stock</th>
+                    <th>Description</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -115,11 +117,12 @@ export default function Leads({ username, loggedIn, setLoggedIn }) {
                         ({
                           _id,
                           name,
-                          email,
-                          phone,
-                          leadSource,
-                          leadStatus,
-                          assignedTo,
+                          category,
+                          price,
+                          sku,
+                          brand,
+                          stock,
+                          description,
                         }) => (
                           <tr key={_id}>
                             <td>
@@ -131,15 +134,16 @@ export default function Leads({ username, loggedIn, setLoggedIn }) {
                               />
                             </td>
                             <td>{name}</td>
-                            <td>{email}</td>
-                            <td>{phone}</td>
-                            <td>{leadSource}</td>
+                            <td>{category}</td>
+                            <td>{price}</td>
                             <td>
-                              <span className="px-4 py-1 rounded-full bg-[#0178ff] text-white">
-                                {leadStatus}
+                              <span className="px-4 text-nowrap py-1 rounded-full bg-[#0178ff] text-white">
+                                {sku}
                               </span>
                             </td>
-                            <td>{assignedTo}</td>
+                            <td>{brand}</td>
+                            <td>{stock}</td>
+                            <td>{description}</td>
                           </tr>
                         ),
                       )
@@ -153,8 +157,8 @@ export default function Leads({ username, loggedIn, setLoggedIn }) {
             </div>
             {data && data.length > 0 && (
               <button
-                disabled={selectedLeads.length === 0}
-                onClick={leadOps}
+                disabled={selectedProducts.length === 0}
+                onClick={ProductOps}
                 className="btn-danger mt-5 disabled:opacity-50"
               >
                 Delete
@@ -164,22 +168,24 @@ export default function Leads({ username, loggedIn, setLoggedIn }) {
             {isError && (
               <p className="my-5 text-red-600">Error: {error.message}</p>
             )}
-            {mutation.isPending && <p className="my-5">Deleting Leads</p>}
+            {mutation.isPending && <p className="my-5">Deleting Products</p>}
             {mutation.isError && (
               <p className="my-5 text-red-600">Error: {error.message}</p>
             )}
           </div>
         </section>
       </main>
-      {showLeadModal && <LeadModal setShowLeadModal={setShowLeadModal} />}
+      {showProductModal && (
+        <ProductModal setShowProductModal={setShowProductModal} />
+      )}
     </div>
   )
 }
 
-function LeadModal({ setShowLeadModal }) {
+function ProductModal({ setShowProductModal }) {
   const { mutate, isPending, error, isError } = useMutation({
     mutationFn: async (formData) => {
-      const res = await fetch(baseUrl + "/create-lead", {
+      const res = await fetch(baseUrl + "/create-Product", {
         method: "POST",
         body: JSON.stringify(Object.fromEntries(formData)),
         headers: {
@@ -192,8 +198,8 @@ function LeadModal({ setShowLeadModal }) {
       return res.json()
     },
     onSuccess: (data) => {
-      queryClient.setQueryData(["leads"], data)
-      setShowLeadModal(false)
+      queryClient.setQueryData(["products"], data)
+      setShowProductModal(false)
     },
   })
 
@@ -205,12 +211,12 @@ function LeadModal({ setShowLeadModal }) {
   return (
     <div
       onClick={(e) => {
-        if (e.target === e.currentTarget) setShowLeadModal(false)
+        if (e.target === e.currentTarget) setShowProductModal(false)
       }}
       className="fixed z-3 grid items-center bg-black/20 top-0 left-0 w-full h-full"
     >
       <section className="shadow-md shadow-black/5 bg-white rounded-xl p-8 mb-10 max-w-md mx-auto">
-        <h2 className="mb-5 text-xl font-bold">Create Lead</h2>
+        <h2 className="mb-5 text-xl font-bold">Create Product</h2>
         <form onSubmit={onSubmit}>
           <div className="grid gap-5 md:grid-cols-2 mb-5">
             <div>
@@ -219,70 +225,47 @@ function LeadModal({ setShowLeadModal }) {
                 id="name"
                 name="name"
                 type="text"
-                placeholder="John"
                 required
                 minLength={4}
                 maxLength={20}
               />
             </div>
             <div>
-              <label htmlFor="email">E-Mail</label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                placeholder="john@gmail.com"
-                required
-              />
+              <label htmlFor="category">Category</label>
+              <input id="category" name="category" type="text" required />
             </div>
             <div>
-              <label htmlFor="phone">Phone</label>
-              <input
-                id="phone"
-                name="phone"
-                type="tel"
-                placeholder="1234567890"
-                required
-                minLength={10}
-                maxLength={10}
-              />
+              <label htmlFor="price">Price</label>
+              <input id="price" name="price" type="number" required />
             </div>
             <div>
-              <label htmlFor="leadSource">Lead Source</label>
+              <label htmlFor="sku">SKU</label>
+              <input id="sku" name="sku" type="text" required />
+            </div>
+            <div>
+              <label htmlFor="brand">Brand</label>
+              <input id="brand" name="brand" type="text" required />
+            </div>
+            <div>
+              <label htmlFor="stock">Stock</label>
+              <input id="stock" name="stock" type="number" required />
+            </div>
+            <div>
+              <label htmlFor="description">Description</label>
               <input
-                id="leadSource"
-                name="leadSource"
+                id="description"
+                name="description"
                 type="text"
-                placeholder=""
                 required
-              />
-            </div>
-            <div>
-              <label htmlFor="leadStatus">Lead Status</label>
-              <input
-                id="leadStatus"
-                name="leadStatus"
-                type="text"
-                placeholder=""
-                required
-              />
-            </div>
-            <div>
-              <label htmlFor="assigned">Assigned to</label>
-              <input
-                id="assigned"
-                name="assignedTo"
-                type="text"
-                placeholder="Doe"
-                required
-                minLength={4}
-                maxLength={20}
+                maxLength={50}
               />
             </div>
           </div>
-          <button className="btn">Create</button>
+          <button disabled={isPending} className="btn disabled:opacity-50">
+            Create
+          </button>
         </form>
-        {isPending && <p className="my-5">Creating Lead</p>}
+        {isPending && <p className="my-5">Creating Product</p>}
         {isError && <p className="my-5 text-red-600">Error: {error.message}</p>}
       </section>
     </div>

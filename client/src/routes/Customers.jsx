@@ -6,11 +6,11 @@ import { useState } from "react"
 import queryClient from "../utils/queryClient"
 import { Navigate } from "react-router"
 
-export default function Leads({ username, loggedIn, setLoggedIn }) {
+export default function Customers({ username, loggedIn, setLoggedIn }) {
   const { data, isPending, error, isError } = useQuery({
-    queryKey: ["leads"],
+    queryKey: ["customers"],
     queryFn: async () => {
-      const res = await fetch(baseUrl + "/leads", {
+      const res = await fetch(baseUrl + "/customers", {
         method: "GET",
         headers: { "Content-Type": "application/json" },
       })
@@ -21,11 +21,11 @@ export default function Leads({ username, loggedIn, setLoggedIn }) {
     },
   })
   const mutation = useMutation({
-    mutationFn: async (selectedLeads) => {
-      const res = await fetch(baseUrl + "/delete-leads", {
+    mutationFn: async (selectedCustomers) => {
+      const res = await fetch(baseUrl + "/delete-customers", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ selectedLeads }),
+        body: JSON.stringify({ selectedCustomers }),
       })
       if (!res.ok) {
         throw new Error(await res.text())
@@ -33,27 +33,27 @@ export default function Leads({ username, loggedIn, setLoggedIn }) {
       return res.json()
     },
     onSuccess: (data) => {
-      queryClient.setQueryData(["leads"], data)
-      setSelectedLeads([])
+      queryClient.setQueryData(["customers"], data)
+      setSelectedCustomers([])
+      document.querySelector(".allCheck").checked = false
     },
   })
 
-  const [showLeadModal, setShowLeadModal] = useState(false)
-  const [selectedLeads, setSelectedLeads] = useState([])
+  const [showCustomerModal, setShowCustomerModal] = useState(false)
+  const [selectedCustomers, setSelectedCustomers] = useState([])
 
   const handleSelect = (e) => {
     if (e.target.checked)
-      setSelectedLeads((prev) => [...prev, e.target.getAttribute("dataid")])
+      setSelectedCustomers((prev) => [...prev, e.target.getAttribute("dataid")])
     else
-      setSelectedLeads((prev) =>
+      setSelectedCustomers((prev) =>
         prev.filter((id) => id !== e.target.getAttribute("dataid")),
       )
   }
 
-  const leadOps = () => {
-    if (selectedLeads.length > 0) mutation.mutate(selectedLeads)
+  const customerOps = () => {
+    if (selectedCustomers.length > 0) mutation.mutate(selectedCustomers)
   }
-
   if (!loggedIn) {
     return <Navigate to={"/"} />
   }
@@ -63,9 +63,9 @@ export default function Leads({ username, loggedIn, setLoggedIn }) {
       <main className="p-8">
         <section>
           <div className="flex justify-between items-center">
-            <h1 className="text-2xl font-bold">Leads</h1>
+            <h1 className="text-2xl font-bold">Customers</h1>
             <button
-              onClick={() => setShowLeadModal(true)}
+              onClick={() => setShowCustomerModal(true)}
               className="btn flex gap-1"
             >
               <Plus />
@@ -85,27 +85,33 @@ export default function Leads({ username, loggedIn, setLoggedIn }) {
                     <th>
                       <input
                         onChange={(e) => {
-                          const leads = document.querySelectorAll("[dataid]")
+                          const customers =
+                            document.querySelectorAll("[dataid]")
                           if (e.target.checked) {
-                            ;[...leads].forEach((ld) => (ld.checked = true))
-                            setSelectedLeads(
-                              [...leads].map((ld) => ld.getAttribute("dataid")),
+                            ;[...customers].forEach((ld) => (ld.checked = true))
+                            setSelectedCustomers(
+                              [...customers].map((ld) =>
+                                ld.getAttribute("dataid"),
+                              ),
                             )
                           } else {
-                            ;[...leads].forEach((ld) => (ld.checked = false))
-                            setSelectedLeads([])
+                            ;[...customers].forEach(
+                              (ld) => (ld.checked = false),
+                            )
+                            setSelectedCustomers([])
                           }
                         }}
                         type="checkbox"
-                        className="accent-[#0178ff] cursor-pointer"
+                        className="accent-[#0178ff] cursor-pointer allCheck"
                       />
                     </th>
                     <th>Name</th>
                     <th>E-Mail</th>
                     <th>Phone</th>
-                    <th>Lead Source</th>
-                    <th>Lead Status</th>
-                    <th>Assigned to</th>
+                    <th>Address</th>
+                    <th>Category</th>
+                    <th>Type</th>
+                    <th>Status</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -117,9 +123,10 @@ export default function Leads({ username, loggedIn, setLoggedIn }) {
                           name,
                           email,
                           phone,
-                          leadSource,
-                          leadStatus,
-                          assignedTo,
+                          address,
+                          category,
+                          type,
+                          status,
                         }) => (
                           <tr key={_id}>
                             <td>
@@ -133,13 +140,14 @@ export default function Leads({ username, loggedIn, setLoggedIn }) {
                             <td>{name}</td>
                             <td>{email}</td>
                             <td>{phone}</td>
-                            <td>{leadSource}</td>
+                            <td>{address}</td>
+                            <td>{category}</td>
+                            <td>{type}</td>
                             <td>
                               <span className="px-4 py-1 rounded-full bg-[#0178ff] text-white">
-                                {leadStatus}
+                                {status}
                               </span>
                             </td>
-                            <td>{assignedTo}</td>
                           </tr>
                         ),
                       )
@@ -153,8 +161,8 @@ export default function Leads({ username, loggedIn, setLoggedIn }) {
             </div>
             {data && data.length > 0 && (
               <button
-                disabled={selectedLeads.length === 0}
-                onClick={leadOps}
+                disabled={selectedCustomers.length === 0}
+                onClick={customerOps}
                 className="btn-danger mt-5 disabled:opacity-50"
               >
                 Delete
@@ -164,22 +172,26 @@ export default function Leads({ username, loggedIn, setLoggedIn }) {
             {isError && (
               <p className="my-5 text-red-600">Error: {error.message}</p>
             )}
-            {mutation.isPending && <p className="my-5">Deleting Leads</p>}
+            {mutation.isPending && <p className="my-5">Deleting Customers</p>}
             {mutation.isError && (
-              <p className="my-5 text-red-600">Error: {error.message}</p>
+              <p className="my-5 text-red-600">
+                Error: {mutation.error.message}
+              </p>
             )}
           </div>
         </section>
       </main>
-      {showLeadModal && <LeadModal setShowLeadModal={setShowLeadModal} />}
+      {showCustomerModal && (
+        <CustomerModal setShowCustomerModal={setShowCustomerModal} />
+      )}
     </div>
   )
 }
 
-function LeadModal({ setShowLeadModal }) {
+function CustomerModal({ setShowCustomerModal }) {
   const { mutate, isPending, error, isError } = useMutation({
     mutationFn: async (formData) => {
-      const res = await fetch(baseUrl + "/create-lead", {
+      const res = await fetch(baseUrl + "/create-customer", {
         method: "POST",
         body: JSON.stringify(Object.fromEntries(formData)),
         headers: {
@@ -192,8 +204,8 @@ function LeadModal({ setShowLeadModal }) {
       return res.json()
     },
     onSuccess: (data) => {
-      queryClient.setQueryData(["leads"], data)
-      setShowLeadModal(false)
+      queryClient.setQueryData(["customers"], data)
+      setShowCustomerModal(false)
     },
   })
 
@@ -205,12 +217,12 @@ function LeadModal({ setShowLeadModal }) {
   return (
     <div
       onClick={(e) => {
-        if (e.target === e.currentTarget) setShowLeadModal(false)
+        if (e.target === e.currentTarget) setShowCustomerModal(false)
       }}
       className="fixed z-3 grid items-center bg-black/20 top-0 left-0 w-full h-full"
     >
       <section className="shadow-md shadow-black/5 bg-white rounded-xl p-8 mb-10 max-w-md mx-auto">
-        <h2 className="mb-5 text-xl font-bold">Create Lead</h2>
+        <h2 className="mb-5 text-xl font-bold">Create Customer</h2>
         <form onSubmit={onSubmit}>
           <div className="grid gap-5 md:grid-cols-2 mb-5">
             <div>
@@ -248,41 +260,37 @@ function LeadModal({ setShowLeadModal }) {
               />
             </div>
             <div>
-              <label htmlFor="leadSource">Lead Source</label>
-              <input
-                id="leadSource"
-                name="leadSource"
-                type="text"
-                placeholder=""
-                required
-              />
+              <label htmlFor="address">Address</label>
+              <input id="address" name="address" type="text" required />
             </div>
             <div>
-              <label htmlFor="leadStatus">Lead Status</label>
-              <input
-                id="leadStatus"
-                name="leadStatus"
-                type="text"
-                placeholder=""
-                required
-              />
+              <label htmlFor="category">Category</label>
+              <select id="category" name="category" required>
+                <option value="Retail">Retail</option>
+                <option value="Wholesale">Wholesale</option>
+              </select>
             </div>
             <div>
-              <label htmlFor="assigned">Assigned to</label>
-              <input
-                id="assigned"
-                name="assignedTo"
-                type="text"
-                placeholder="Doe"
-                required
-                minLength={4}
-                maxLength={20}
-              />
+              <label htmlFor="type">Type</label>
+              <select id="type" name="type" required>
+                <option value="Individual">Individual</option>
+                <option value="Business">Business</option>
+              </select>
+            </div>
+            <div>
+              <label htmlFor="status">Status</label>
+              <select id="status" name="status" required>
+                <option value="Active">Active</option>
+                <option value="Inactive">Inactive</option>
+                <option value="New">New</option>
+              </select>
             </div>
           </div>
-          <button className="btn">Create</button>
+          <button disabled={isPending} className="btn disabled:opacity-50">
+            Create
+          </button>
         </form>
-        {isPending && <p className="my-5">Creating Lead</p>}
+        {isPending && <p className="my-5">Creating Customer</p>}
         {isError && <p className="my-5 text-red-600">Error: {error.message}</p>}
       </section>
     </div>
